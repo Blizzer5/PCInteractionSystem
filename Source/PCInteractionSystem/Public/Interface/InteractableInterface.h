@@ -74,5 +74,5 @@ public:
 	FText InteractableName;
 	FText InteractionActionName;
 	float InteractionTime;
-	bool bIsInteractable;
+	bool bIsInteractable = true;
 };

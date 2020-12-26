@@ -46,6 +46,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Base Interaction Pawn")
+        ACharacter* BeingInteractedBy = nullptr;
 private:
     UFUNCTION()
     void CompleteInteraction();

@@ -114,8 +114,13 @@ void UTargetComponent::OnControllerOwnerChangedPawn()
 {
     if (MyPlayer->GetController())
     {
+        EnableTargeting();
         MyPlayer->InputComponent->BindAction("Interact", IE_Pressed, this, &UTargetComponent::Interact);
         MyPlayer->InputComponent->BindAction("Interact", IE_Released, this, &UTargetComponent::InteractReleased);
+    }
+    else
+    {
+        DisableTargeting();
     }
 }
 
@@ -152,7 +157,7 @@ void UTargetComponent::GatherObjects(float DeltaSeconds)
         {
             if (IInteractableInterface* InteractableActor = Cast<IInteractableInterface>(Hit.Actor))
             {
-                if (!InteractableObjects.Contains(Hit.Actor.Get()))
+                if (IInteractableInterface::Execute_IsInteractable(Hit.Actor.Get()) && !InteractableObjects.Contains(Hit.Actor.Get()))
                 {
                     InteractableObjects.Add(Hit.Actor.Get());
                 }
