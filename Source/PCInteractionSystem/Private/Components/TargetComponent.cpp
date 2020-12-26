@@ -39,12 +39,32 @@ void UTargetComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    MyPlayer = Cast<ACharacter>(GetOwner());
-    MyPlayer->InputComponent->BindAction("Interact", IE_Pressed, this, &UTargetComponent::Interact);
-    MyPlayer->InputComponent->BindAction("Interact", IE_Released, this, &UTargetComponent::InteractReleased);
-    CameraManager = Cast<APlayerController>(MyPlayer->GetController())->PlayerCameraManager;
+    SetComponentTickEnabled(false);
+
+    if (GetOwner()->GetLocalRole() >= ENetRole::ROLE_AutonomousProxy)
+    {
+        // We need a delay because some clients could not be fully initialized yet
+        FTimerHandle InitializationTimer;
+        GetWorld()->GetTimerManager().SetTimer(InitializationTimer, this, &UTargetComponent::InitializeComponent, 1.0f, false);
+    }
 }
 
+
+void UTargetComponent::InitializeComponent()
+{
+    MyPlayer = Cast<ACharacter>(GetOwner());
+    if (MyPlayer->GetController())
+    {
+        SetComponentTickEnabled(true);
+        MyPlayer->GetController()->GetOnNewPawnNotifier().AddUFunction(this, "OnControllerOwnerChangedPawn");
+        if (MyPlayer->InputComponent)
+        {
+            MyPlayer->InputComponent->BindAction("Interact", IE_Pressed, this, &UTargetComponent::Interact);
+            MyPlayer->InputComponent->BindAction("Interact", IE_Released, this, &UTargetComponent::InteractReleased);
+        }
+        CameraManager = Cast<APlayerController>(MyPlayer->GetController())->PlayerCameraManager;
+    }
+}
 
 // Called every frame
 void UTargetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -59,19 +79,25 @@ void UTargetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 AActor* UTargetComponent::GetLastHighlightedObject()
 {
-    return LastSelectedObject ? Cast<AActor>(LastSelectedObject) : nullptr;
+    return LastSelectedObject;
 }
 
 void UTargetComponent::Interact()
 {
-    IInteractableInterface::Execute_OnInteractionStarted(LastSelectedObject, MyPlayer);
-    OnInteractionStarted.Broadcast();
+    if (GetLastHighlightedObject())
+    {
+        IInteractableInterface::Execute_OnInteractionStarted(LastSelectedObject, MyPlayer);
+        OnInteractionStarted.Broadcast();
+    }
 }
 
 void UTargetComponent::InteractReleased()
 {
-    IInteractableInterface::Execute_StopInteraction(LastSelectedObject);
-    OnInteractionInterrupted.Broadcast();
+    if (GetLastHighlightedObject())
+    {
+        IInteractableInterface::Execute_StopInteraction(LastSelectedObject);
+        OnInteractionInterrupted.Broadcast();
+    }
 }
 
 void UTargetComponent::DisableTargeting()
@@ -82,6 +108,15 @@ void UTargetComponent::DisableTargeting()
 void UTargetComponent::EnableTargeting()
 {
     bCanTarget = true;
+}
+
+void UTargetComponent::OnControllerOwnerChangedPawn()
+{
+    if (MyPlayer->GetController())
+    {
+        MyPlayer->InputComponent->BindAction("Interact", IE_Pressed, this, &UTargetComponent::Interact);
+        MyPlayer->InputComponent->BindAction("Interact", IE_Released, this, &UTargetComponent::InteractReleased);
+    }
 }
 
 void UTargetComponent::GatherObjects(float DeltaSeconds)
@@ -159,4 +194,3 @@ void UTargetComponent::HighlightClosestObject()
         OnHighlightedObjectChanged.Broadcast(ScriptInteractable);
     }
 }
-

@@ -5,16 +5,16 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interface/InteractableInterface.h"
-#include "BaseInteractionActor.generated.h"
+#include "BaseInteractionPawn.generated.h"
 
 UCLASS()
-class PCINTERACTIONSYSTEM_API ABaseInteractionActor : public AActor, public IInteractableInterface
+class PCINTERACTIONSYSTEM_API ABaseInteractionPawn : public APawn, public IInteractableInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ABaseInteractionActor();
+	ABaseInteractionPawn();
 
     virtual void OnInteractionStarted_Implementation(ACharacter* InteractedBy) override;
     virtual void StopInteraction_Implementation() override;
@@ -34,21 +34,41 @@ public:
     virtual void SetInteractionTime_Implementation(float newInteractionTime) override;
 
     // PROPERTIES
-    UPROPERTY(EditAnywhere, Category = "Base Interaction Actor")
-    FText ActorInteractableName;
-    UPROPERTY(EditAnywhere, Category = "Base Interaction Actor")
+    UPROPERTY(EditAnywhere, Category = "Base Interaction Pawn")
+    FText PawnInteractableName;
+    UPROPERTY(EditAnywhere, Category = "Base Interaction Pawn")
     FText InteractionActionName;
-    UPROPERTY(EditAnywhere, Category = "Base Interaction Actor")
-    EInteractionType ActorInteractionType;
-	UPROPERTY(EditAnywhere, Category = "Base Interaction Actor")
-	float ActorInteractionTime;
+    UPROPERTY(EditAnywhere, Category = "Base Interaction Pawn")
+    EInteractionType PawnInteractionType;
+	UPROPERTY(EditAnywhere, Category = "Base Interaction Pawn")
+	float PawnInteractionTime;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Base Interaction Pawn")
+        ACharacter* BeingInteractedBy = nullptr;
+
+    /** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+        float BaseTurnRate;
+
+    /** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+        float BaseLookUpRate;
+
+    void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+    void TurnAtRate(float Rate);
+    void LookUpAtRate(float Rate);
+    void MoveForward(float Value);
+    void MoveRight(float Value);
+   
 
 private:
     UFUNCTION()
     void CompleteInteraction();
     
     FTimerHandle InteractionTimerHandle;
+    
 };

@@ -31,6 +31,9 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+    UFUNCTION()
+    void InitializeComponent();
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -58,6 +61,9 @@ public:
 
     void DisableTargeting();
     void EnableTargeting();
+
+    UFUNCTION()
+    void OnControllerOwnerChangedPawn();
 private:
     void GatherObjects(float DeltaSeconds);
     void HighlightClosestObject();

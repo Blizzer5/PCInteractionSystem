@@ -28,11 +28,6 @@ void ABaseInteractionActor::OnInteractionStarted_Implementation(ACharacter* Inte
     }
 }
 
-void ABaseInteractionActor::OnInteractionCompleted_Implementation()
-{
-    
-}
-
 void ABaseInteractionActor::StopInteraction_Implementation()
 {
     GetWorld()->GetTimerManager().ClearTimer(InteractionTimerHandle);
