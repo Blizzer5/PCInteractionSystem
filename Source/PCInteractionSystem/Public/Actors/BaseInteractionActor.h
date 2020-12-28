@@ -20,6 +20,8 @@ public:
     virtual void StopInteraction_Implementation() override;
     virtual void DisableInteraction_Implementation() override;
     virtual void EnableInteraction_Implementation() override;
+    virtual void OnHighlighted_Implementation() override;
+    virtual void OnHighlightRemoved_Implementation() override;
 
     virtual AActor* GetActor_Implementation() override;
     virtual bool IsInteractable_Implementation() override;
@@ -51,6 +53,8 @@ protected:
 private:
     UFUNCTION()
     void CompleteInteraction();
+
+    TArray<UMeshComponent*> GetMeshComponents();
     
     FTimerHandle InteractionTimerHandle;
 };

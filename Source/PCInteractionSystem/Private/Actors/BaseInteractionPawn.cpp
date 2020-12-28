@@ -4,8 +4,8 @@
 // Sets default values
 ABaseInteractionPawn::ABaseInteractionPawn()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -15,15 +15,15 @@ void ABaseInteractionPawn::OnInteractionStarted_Implementation(ACharacter* Inter
     switch (InteractionType)
     {
     case EInteractionType::Straight:
-        {
-            Execute_OnInteractionCompleted(this);
-        }
-        break;
+    {
+        Execute_OnInteractionCompleted(this);
+    }
+    break;
     case EInteractionType::Timer:
-        {
-            GetWorld()->GetTimerManager().SetTimer(InteractionTimerHandle, this, &ABaseInteractionPawn::CompleteInteraction, InteractionTime, false);
-        }
-        break;
+    {
+        GetWorld()->GetTimerManager().SetTimer(InteractionTimerHandle, this, &ABaseInteractionPawn::CompleteInteraction, InteractionTime, false);
+    }
+    break;
     default:
         break;
     }
@@ -36,7 +36,7 @@ void ABaseInteractionPawn::StopInteraction_Implementation()
 
 AActor* ABaseInteractionPawn::GetActor_Implementation()
 {
-	return this;
+    return this;
 }
 
 bool ABaseInteractionPawn::IsInteractable_Implementation()
@@ -52,6 +52,22 @@ void ABaseInteractionPawn::DisableInteraction_Implementation()
 void ABaseInteractionPawn::EnableInteraction_Implementation()
 {
     bIsInteractable = true;
+}
+
+void ABaseInteractionPawn::OnHighlighted_Implementation()
+{
+    for (UMeshComponent* mesh : GetMeshComponents())
+    {
+        mesh->SetRenderCustomDepth(true);
+    }
+}
+
+void ABaseInteractionPawn::OnHighlightRemoved_Implementation()
+{
+    for (UMeshComponent* mesh : GetMeshComponents())
+    {
+        mesh->SetRenderCustomDepth(false);
+    }
 }
 
 EInteractionType ABaseInteractionPawn::GetInteractionType_Implementation()
@@ -97,9 +113,9 @@ void ABaseInteractionPawn::SetInteractionTime_Implementation(float newInteractio
 // Called when the game starts or when spawned
 void ABaseInteractionPawn::BeginPlay()
 {
-	Super::BeginPlay();
-	
-	Execute_SetInteractableName(this, PawnInteractableName);
+    Super::BeginPlay();
+
+    Execute_SetInteractableName(this, PawnInteractableName);
     Execute_SetInteractionActionName(this, InteractionActionName);
     Execute_SetInteractionType(this, PawnInteractionType);
     Execute_SetInteractionTime(this, PawnInteractionTime);
@@ -126,6 +142,23 @@ void ABaseInteractionPawn::CompleteInteraction()
     Execute_OnInteractionCompleted(this);
 }
 
+
+TArray<UMeshComponent*> ABaseInteractionPawn::GetMeshComponents()
+{
+    TArray<UMeshComponent*> meshes;
+    GetComponents(meshes);
+    return meshes;
+}
+
+void ABaseInteractionPawn::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+
+    for (UMeshComponent* mesh : GetMeshComponents())
+    {
+        mesh->SetRenderCustomDepth(false);
+    }
+}
 
 // MOVEMENT
 void ABaseInteractionPawn::TurnAtRate(float Rate)
