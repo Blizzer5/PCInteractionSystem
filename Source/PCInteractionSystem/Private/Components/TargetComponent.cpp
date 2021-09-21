@@ -174,12 +174,17 @@ void UTargetComponent::GatherObjects(float DeltaSeconds)
 		FHitResult HitResult;
 
 		if (UKismetSystemLibrary::LineTraceSingle(this, TraceStartLocation, TraceEndLocation, TraceTypeQuery1, true, IgnoreActors, bShowDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None, HitResult, true)) {
-			if (IInteractableInterface* InteractableActor = Cast<IInteractableInterface>(HitResult.Actor))
-			{
-				if (IInteractableInterface::Execute_IsInteractable(HitResult.Actor.Get()) && !InteractableObjects.Contains(HitResult.Actor.Get()))
+			if (bOnlyInteractableObjects) {
+				if (IInteractableInterface* InteractableActor = Cast<IInteractableInterface>(HitResult.Actor))
 				{
-					InteractableObjects.Add(HitResult.Actor.Get());
+					if (IInteractableInterface::Execute_IsInteractable(HitResult.Actor.Get()) && !InteractableObjects.Contains(HitResult.Actor.Get()))
+					{
+						InteractableObjects.Add(HitResult.Actor.Get());
+					}
 				}
+			}
+			else {
+				InteractableObjects.Add(HitResult.Actor.Get());
 			}
 		}
 	}
@@ -204,16 +209,25 @@ void UTargetComponent::HighlightClosestObject()
 	{
 		if (LastSelectedObject)
 		{
-			IInteractableInterface::Execute_OnHighlightRemoved(LastSelectedObject);
+			if (TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(LastSelectedObject)) {
+				IInteractableInterface::Execute_OnHighlightRemoved(LastSelectedObject);
+			}
 		}
 
 		if (closestObject)
 		{
-			IInteractableInterface::Execute_OnHighlighted(closestObject);
+			if (TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(closestObject)) {
+				IInteractableInterface::Execute_OnHighlighted(closestObject);
+			}
+		}
+
+		if (TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(closestObject ? closestObject : nullptr)) {
+			OnHighlightedObjectChanged.Broadcast(ScriptInteractable);
+		}
+		else {
+			OnActorHighlightedChanged.Broadcast(closestObject, LastSelectedObject);
 		}
 
 		LastSelectedObject = closestObject;
-		TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(LastSelectedObject ? LastSelectedObject : nullptr);
-		OnHighlightedObjectChanged.Broadcast(ScriptInteractable);
 	}
 }

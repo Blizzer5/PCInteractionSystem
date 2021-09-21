@@ -21,6 +21,7 @@ enum class ECameraType : uint8{
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHighlightedObjectChanged, TScriptInterface<IInteractableInterface>, IInteractableObject);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorHighlightedChanged, AActor*, currentHighlightedActor, AActor*, lastHighlightedActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionInterrupted);
 
@@ -57,6 +58,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Camera", meta = (AllowPrivateAccess = "true"))
 		ECameraType cameraType;
 
+	UPROPERTY(EditAnywhere, Category = "AutoTarget | Debug")
+		bool bOnlyInteractableObjects = true;
+
     UPROPERTY(EditAnywhere, Category = "AutoTarget | Debug")
         bool bShowDebug;
 
@@ -84,6 +88,8 @@ public:
         FOnInteractionStarted OnInteractionStarted;
     UPROPERTY(BlueprintAssignable, Category = "AutoTarget | Events")
         FOnInteractionInterrupted OnInteractionInterrupted;
+    UPROPERTY(BlueprintAssignable, Category = "AutoTarget | Events")
+        FOnActorHighlightedChanged OnActorHighlightedChanged;
 private:
     bool bCanTarget = true;
     TArray<AActor*> InteractableObjects;
