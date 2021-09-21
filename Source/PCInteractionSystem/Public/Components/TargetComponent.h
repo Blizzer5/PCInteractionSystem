@@ -14,6 +14,12 @@
 
 class IInteractableInterface;
 
+UENUM(BlueprintType)
+enum class ECameraType : uint8{
+    FirstPerson,
+    ThirdPerson,
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHighlightedObjectChanged, TScriptInterface<IInteractableInterface>, IInteractableObject);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionInterrupted);
@@ -39,14 +45,17 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 private:
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = " AutoTarget | Line of Sight", meta = (AllowPrivateAccess = "true", UIMin = "1.0", UIMax = "360.0"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Third Person | Line of Sight", meta = (AllowPrivateAccess = "true", UIMin = "1.0", UIMax = "360.0"))
         float ArcAngle;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Line of Sight", meta = (AllowPrivateAccess = "true", UIMin = "1.0", UIMax = "5.0"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Third Person | Line of Sight", meta = (AllowPrivateAccess = "true", UIMin = "1.0", UIMax = "5.0"))
         float AngleStep;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Line of Sight", meta = (AllowPrivateAccess = "true", UIMin = "200", UIMax = "1000"))
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Third Person | Line of Sight", meta = (AllowPrivateAccess = "true", UIMin = "200", UIMax = "1000"))
         float Radius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AutoTarget | Camera", meta = (AllowPrivateAccess = "true"))
+		ECameraType cameraType;
 
     UPROPERTY(EditAnywhere, Category = "AutoTarget | Debug")
         bool bShowDebug;

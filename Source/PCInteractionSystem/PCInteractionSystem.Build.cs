@@ -37,8 +37,7 @@ public class PCInteractionSystem : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore",
-				"UMGControllerReady"
+				"SlateCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
