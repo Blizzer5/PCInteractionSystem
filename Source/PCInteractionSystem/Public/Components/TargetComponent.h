@@ -22,8 +22,8 @@ enum class ECameraType : uint8{
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHighlightedObjectChanged, TScriptInterface<IInteractableInterface>, IInteractableObject);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorHighlightedChanged, AActor*, currentHighlightedActor, AActor*, lastHighlightedActor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionStarted);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractionInterrupted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionStarted, AActor*, InteractedActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionInterrupted, AActor*, InteractedActor);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PCINTERACTIONSYSTEM_API UTargetComponent : public UActorComponent

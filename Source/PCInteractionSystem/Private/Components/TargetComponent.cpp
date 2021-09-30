@@ -86,8 +86,10 @@ void UTargetComponent::Interact()
 {
 	if (GetLastHighlightedObject())
 	{
-		IInteractableInterface::Execute_OnInteractionStarted(LastSelectedObject, MyPlayer);
-		OnInteractionStarted.Broadcast();
+		if (TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(LastSelectedObject)) {
+			IInteractableInterface::Execute_OnInteractionStarted(LastSelectedObject, MyPlayer);
+		}
+		OnInteractionStarted.Broadcast(LastSelectedObject);
 	}
 }
 
@@ -95,8 +97,10 @@ void UTargetComponent::InteractReleased()
 {
 	if (GetLastHighlightedObject())
 	{
-		IInteractableInterface::Execute_StopInteraction(LastSelectedObject);
-		OnInteractionInterrupted.Broadcast();
+		if (TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(LastSelectedObject)) {
+			IInteractableInterface::Execute_StopInteraction(LastSelectedObject);
+		}
+		OnInteractionInterrupted.Broadcast(LastSelectedObject);
 	}
 }
 
