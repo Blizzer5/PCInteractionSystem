@@ -20,8 +20,28 @@ enum class ECameraType : uint8{
     ThirdPerson,
 };
 
+USTRUCT(Blueprintable)
+struct FMaterialInfo {
+    GENERATED_BODY()
+
+    FMaterialInfo() = default;
+
+    FMaterialInfo(UMaterial* materialPointer, FName slot) :
+    material(materialPointer) ,
+    materialSlot(slot)
+    {
+        
+    }
+
+    UPROPERTY()
+    UMaterial* material;
+
+    UPROPERTY()
+    FName materialSlot;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHighlightedObjectChanged, TScriptInterface<IInteractableInterface>, IInteractableObject);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActorHighlightedChanged, AActor*, currentHighlightedActor, AActor*, lastHighlightedActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorHighlightedChanged, AActor*, currentHighlightedActor, AActor*, lastHighlightedActor, FMaterialInfo, materialInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionStarted, AActor*, InteractedActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionInterrupted, AActor*, InteractedActor);
 
@@ -79,6 +99,9 @@ public:
     void OnControllerOwnerChangedPawn();
 private:
     void GatherObjects(float DeltaSeconds);
+
+    FMaterialInfo GetHitMaterialInfo(FHitResult &HitResult);
+
     void HighlightClosestObject();
     
 public:
@@ -92,7 +115,7 @@ public:
         FOnActorHighlightedChanged OnActorHighlightedChanged;
 private:
     bool bCanTarget = true;
-    TArray<AActor*> InteractableObjects;
+    TMap<AActor*, FMaterialInfo> InteractableObjects;
     AActor* LastSelectedObject;
     APlayerCameraManager* CameraManager;
     class ACharacter* MyPlayer;
