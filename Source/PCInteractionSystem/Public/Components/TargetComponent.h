@@ -44,6 +44,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHighlightedObjectChanged, TScript
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnActorHighlightedChanged, AActor*, currentHighlightedActor, AActor*, lastHighlightedActor, FMaterialInfo, materialInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionStarted, AActor*, InteractedActor);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionInterrupted, AActor*, InteractedActor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInteractionCancelled, AActor*, InteractedActor);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PCINTERACTIONSYSTEM_API UTargetComponent : public UActorComponent
@@ -91,6 +92,8 @@ public:
     void Interact();
     UFUNCTION()
     void InteractReleased();
+	UFUNCTION()
+	void InteractCancelled();
 
     void DisableTargeting();
     void EnableTargeting();
@@ -113,6 +116,8 @@ public:
         FOnInteractionInterrupted OnInteractionInterrupted;
     UPROPERTY(BlueprintAssignable, Category = "AutoTarget | Events")
         FOnActorHighlightedChanged OnActorHighlightedChanged;
+    UPROPERTY(BlueprintAssignable, Category = "AutoTarget | Events")
+        FOnInteractionCancelled OnInteractionCancelled;
 private:
     bool bCanTarget = true;
     TMap<AActor*, FMaterialInfo> InteractableObjects;

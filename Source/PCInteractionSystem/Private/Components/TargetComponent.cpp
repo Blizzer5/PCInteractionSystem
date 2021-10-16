@@ -61,6 +61,7 @@ void UTargetComponent::InitializeComponent()
         {
             MyPlayer->InputComponent->BindAction("Interact", IE_Pressed, this, &UTargetComponent::Interact);
             MyPlayer->InputComponent->BindAction("Interact", IE_Released, this, &UTargetComponent::InteractReleased);
+            MyPlayer->InputComponent->BindAction("CancelInteraction", IE_Pressed, this, &UTargetComponent::InteractCancelled);
         }
         CameraManager = Cast<APlayerController>(MyPlayer->GetController())->PlayerCameraManager;
     }
@@ -102,6 +103,17 @@ void UTargetComponent::InteractReleased()
         }
         OnInteractionInterrupted.Broadcast(LastSelectedObject);
     }
+}
+
+void UTargetComponent::InteractCancelled()
+{
+	if (GetLastHighlightedObject())
+	{
+		if (TScriptInterface<IInteractableInterface> ScriptInteractable = TScriptInterface<IInteractableInterface>(LastSelectedObject)) {
+			IInteractableInterface::Execute_StopInteraction(LastSelectedObject);
+		}
+        OnInteractionCancelled.Broadcast(LastSelectedObject);
+	}
 }
 
 void UTargetComponent::DisableTargeting()
@@ -204,7 +216,7 @@ FMaterialInfo UTargetComponent::GetHitMaterialInfo(FHitResult &HitResult)
         // GET AND SEND THE MATERIAL SLOT
         UStaticMeshComponent* staticMeshComp = Cast<UStaticMeshComponent>(HitResult.Component);
         for (auto staticMaterial : staticMeshComp->GetStaticMesh()->GetStaticMaterials()) {
-            if (staticMaterial.MaterialInterface == materialInterface) {
+            if (staticMaterial.MaterialInterface->GetBaseMaterial() == materialInterface->GetBaseMaterial()) {
                 materialSlot = staticMaterial.MaterialSlotName;
             }
         }
